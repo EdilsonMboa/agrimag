@@ -10,9 +10,10 @@ import { SubscriptionSection } from './components/SubscriptionSection';
 import { MagazinesLibraryModal } from './components/MagazinesLibraryModal';
 import { useLanguage } from './i18n/LanguageContext';
 import { AdminPanel } from './components/AdminPanel';
+import { PortfolioSection } from './components/PortfolioSection';
 
 
-const trackedSections = ['inicio', 'sobre', 'revistas', 'servicos', 'subscricao', 'contactos'];
+const trackedSections = ['inicio', 'sobre', 'revistas', 'servicos', 'portfolio', 'subscricao', 'contactos'];
 
 function AboutSection() {
   const { t } = useLanguage();
@@ -91,6 +92,7 @@ export default function App() {
         <AboutSection />
         <MagazinesSection />
         <ServicesSection onRequestQuote={openQuote} />
+        <PortfolioSection onRequestQuote={() => openQuote()} />
         <SubscriptionSection />
       </main>
       <Footer />

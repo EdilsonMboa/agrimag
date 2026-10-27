@@ -45,6 +45,7 @@ export function ServicesSection({ onRequestQuote }: ServicesSectionProps) {
                   <h3 className="font-display text-2xl font-extrabold tracking-[-0.055em] text-agriDark sm:text-3xl">{copy.title}</h3>
                 </div>
                 <div>
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">{t.services.executiveSummary}</p>
                   <p className="max-w-xl text-sm leading-6 text-slate-500">{copy.description}</p>
                   <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
                     {copy.bullets.map((bullet) => <li key={bullet} className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600"><CheckCircle2 className="h-3.5 w-3.5 text-agriGreen" /> {bullet}</li>)}

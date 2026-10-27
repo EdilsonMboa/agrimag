@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowUpRight, BookOpen, MapPin, Sprout, TrendingUp } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, BookOpen, BriefcaseBusiness, MapPin, Sprout, TrendingUp } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 type HeroProps = {
@@ -30,6 +30,10 @@ export function Hero({
           <p className="mt-7 max-w-xl text-base leading-7 text-white/66 sm:text-lg sm:leading-8">
             {t.hero.description}
           </p>
+          <div className="mt-7 grid max-w-xl gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-white/12 bg-white/6 p-4 backdrop-blur-sm"><div className="flex items-center gap-2 text-xs font-bold text-white"><BookOpen className="h-4 w-4 text-agriGreen" /> {t.hero.mediaPillar}</div><p className="mt-2 text-xs leading-5 text-white/55">{t.hero.mediaPillarText}</p></div>
+            <div className="rounded-2xl border border-white/12 bg-white/6 p-4 backdrop-blur-sm"><div className="flex items-center gap-2 text-xs font-bold text-white"><BriefcaseBusiness className="h-4 w-4 text-agriGreen" /> {t.hero.servicesPillar}</div><p className="mt-2 text-xs leading-5 text-white/55">{t.hero.servicesPillarText}</p></div>
+          </div>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <button
               onClick={onExploreMagazines}

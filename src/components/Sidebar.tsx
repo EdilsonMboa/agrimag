@@ -17,6 +17,7 @@ export function Sidebar({ open, onClose, onRequestQuote }: SidebarProps) {
     { label: t.sidebar.about, href: '#sobre', icon: Sprout },
     { label: t.sidebar.magazines, href: '#revistas', icon: FileText },
     { label: t.sidebar.services, href: '#servicos', icon: Users },
+    { label: t.sidebar.impact, href: '#portfolio', icon: FileText },
     { label: t.sidebar.subscription, href: '#subscricao', icon: CalendarDays },
     { label: t.sidebar.contacts, href: '#contactos', icon: Mail },
   ];

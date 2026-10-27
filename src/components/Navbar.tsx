@@ -26,6 +26,7 @@ export function Navbar({ activeSection, onOpenMenu, onRequestQuote }: NavbarProp
     { label: t.nav.about, href: '#sobre' },
     { label: t.nav.magazines, href: '#revistas' },
     { label: t.nav.services, href: '#servicos' },
+    { label: t.nav.impact, href: '#portfolio' },
     { label: t.nav.subscription, href: '#subscricao' },
     { label: t.nav.contacts, href: '#contactos' },
   ];
