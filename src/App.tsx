@@ -9,6 +9,7 @@ import { Sidebar } from './components/Sidebar';
 import { SubscriptionSection } from './components/SubscriptionSection';
 import { MagazinesLibraryModal } from './components/MagazinesLibraryModal';
 import { useLanguage } from './i18n/LanguageContext';
+import { AdminPanel } from './components/AdminPanel';
 
 
 const trackedSections = ['inicio', 'sobre', 'revistas', 'servicos', 'subscricao', 'contactos'];
@@ -33,6 +34,7 @@ function AboutSection() {
 }
 
 export default function App() {
+  const [isAdminRoute, setIsAdminRoute] = useState(() => window.location.pathname === '/admin');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [quoteService, setQuoteService] = useState<string | undefined>();
@@ -41,6 +43,13 @@ export default function App() {
 
 
   useEffect(() => {
+    const handleNavigation = () => setIsAdminRoute(window.location.pathname === '/admin');
+    window.addEventListener('popstate', handleNavigation);
+    return () => window.removeEventListener('popstate', handleNavigation);
+  }, []);
+
+  useEffect(() => {
+    if (isAdminRoute) return undefined;
     const observers = trackedSections.map((id) => {
       const element = document.getElementById(id);
       if (!element) return null;
@@ -51,7 +60,7 @@ export default function App() {
       return observer;
     });
     return () => observers.forEach((observer) => observer?.disconnect());
-  }, []);
+  }, [isAdminRoute]);
 
   useEffect(() => {
     document.body.style.overflow = drawerOpen || quoteOpen ? 'hidden' : '';
@@ -62,6 +71,13 @@ export default function App() {
     setQuoteService(service);
     setQuoteOpen(true);
   };
+
+  const leaveAdmin = () => {
+    window.history.pushState({}, '', '/');
+    setIsAdminRoute(false);
+  };
+
+  if (isAdminRoute) return <AdminPanel onBack={leaveAdmin} />;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">

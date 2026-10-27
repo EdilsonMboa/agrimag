@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Leaf, Linkedin, Mail, MapPin, Phone } from 'lucide-react';
+import { Facebook, Instagram, Leaf, Linkedin, LockKeyhole, Mail, MapPin, Phone } from 'lucide-react';
 import { BrandMark } from './Navbar';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -36,7 +36,7 @@ export function Footer() {
         </div>
         <div className="mt-16 flex flex-col justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/35 sm:flex-row sm:items-center">
           <p>© {new Date().getFullYear()} AgriMag. {t.footer.copyright}</p>
-          <p className="inline-flex items-center gap-2"><Leaf className="h-3.5 w-3.5 text-agriGreen" /> {t.footer.future}</p>
+          <div className="flex flex-wrap items-center gap-5"><p className="inline-flex items-center gap-2"><Leaf className="h-3.5 w-3.5 text-agriGreen" /> {t.footer.future}</p><a href="/admin" className="inline-flex items-center gap-1.5 transition hover:text-white" aria-label={t.footer.admin}><LockKeyhole className="h-3.5 w-3.5 text-agriGreen" /> {t.footer.admin}</a></div>
         </div>
       </div>
     </footer>
