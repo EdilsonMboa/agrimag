@@ -1,4 +1,6 @@
 import { ArrowUpRight, Leaf, Menu } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
+import { LanguageToggle } from './LanguageToggle';
 
 type NavbarProps = {
   activeSection: string;
@@ -6,15 +8,7 @@ type NavbarProps = {
   onRequestQuote: () => void;
 };
 
-const links = [
-  { label: 'Sobre', href: '#sobre' },
-  { label: 'Revistas', href: '#revistas' },
-  { label: 'Serviços', href: '#servicos' },
-  { label: 'Subscrição', href: '#subscricao' },
-  { label: 'Contactos', href: '#contactos' },
-];
-
-export function BrandMark() {
+export function BrandMark({ light: _light = false }: { light?: boolean }) {
   return (
     <a href="#inicio" className="group inline-flex items-center gap-2.5" aria-label="AgriMag — início">
       <img 
@@ -27,6 +21,15 @@ export function BrandMark() {
 }
 
 export function Navbar({ activeSection, onOpenMenu, onRequestQuote }: NavbarProps) {
+  const { t } = useLanguage();
+  const links = [
+    { label: t.nav.about, href: '#sobre' },
+    { label: t.nav.magazines, href: '#revistas' },
+    { label: t.nav.services, href: '#servicos' },
+    { label: t.nav.subscription, href: '#subscricao' },
+    { label: t.nav.contacts, href: '#contactos' },
+  ];
+
   return (
     <>
       <header className="sticky inset-x-0 top-0 z-40 hidden h-20 border-b border-white/10 bg-agriDark/95 text-white shadow-lg shadow-agriDark/5 backdrop-blur-lg lg:block">
@@ -48,9 +51,12 @@ export function Navbar({ activeSection, onOpenMenu, onRequestQuote }: NavbarProp
               );
             })}
           </nav>
-          <button onClick={onRequestQuote} className="focus-ring inline-flex items-center gap-2 rounded-full bg-agriGreen px-4 py-2.5 text-[13px] font-bold text-white shadow-lg shadow-agriGreen/20 transition hover:-translate-y-0.5 hover:bg-[#08aa50]">
-            Solicitar Cotação <ArrowUpRight className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-3">
+            <LanguageToggle />
+            <button onClick={onRequestQuote} className="focus-ring inline-flex items-center gap-2 rounded-full bg-agriGreen px-4 py-2.5 text-[13px] font-bold text-white shadow-lg shadow-agriGreen/20 transition hover:-translate-y-0.5 hover:bg-[#08aa50]">
+              {t.nav.quote} <ArrowUpRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </header>
 

@@ -8,21 +8,24 @@ import { ServicesSection } from './components/ServicesSection';
 import { Sidebar } from './components/Sidebar';
 import { SubscriptionSection } from './components/SubscriptionSection';
 import { MagazinesLibraryModal } from './components/MagazinesLibraryModal';
+import { useLanguage } from './i18n/LanguageContext';
 
 
 const trackedSections = ['inicio', 'sobre', 'revistas', 'servicos', 'subscricao', 'contactos'];
 
 function AboutSection() {
+  const { t } = useLanguage();
+
   return (
     <section id="sobre" className="border-b border-slate-200 bg-white py-20 sm:py-28">
       <div className="container-shell grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <div>
-          <span className="eyebrow">Sobre a AgriMag</span>
-          <h2 className="section-title mt-5">O sector cresce quando a informação <span className="text-agriGreen">chega mais longe.</span></h2>
+          <span className="eyebrow">{t.about.eyebrow}</span>
+          <h2 className="section-title mt-5">{t.about.titleA} <span className="text-agriGreen">{t.about.titleB}</span></h2>
         </div>
         <div className="grid gap-6 sm:grid-cols-2">
-          <div className="rounded-[24px] bg-agriDark p-6 text-white sm:translate-y-8"><p className="font-display text-4xl font-extrabold tracking-[-0.07em] text-agriGreen">01</p><h3 className="mt-8 font-display text-xl font-extrabold tracking-[-0.04em]">Uma voz para o agro</h3><p className="mt-3 text-sm leading-6 text-white/58">Damos palco às pessoas, empresas e ideias que estão a transformar a agricultura moçambicana.</p></div>
-          <div className="rounded-[24px] bg-agriMint p-6 text-agriDark"><p className="font-display text-4xl font-extrabold tracking-[-0.07em] text-agriGreen">02</p><h3 className="mt-8 font-display text-xl font-extrabold tracking-[-0.04em]">Contexto para decidir</h3><p className="mt-3 text-sm leading-6 text-agriDark/60">Ligamos as tendências globais ao ritmo local, tornando oportunidades mais claras e accionáveis.</p></div>
+          <div className="rounded-[24px] bg-agriDark p-6 text-white sm:translate-y-8"><p className="font-display text-4xl font-extrabold tracking-[-0.07em] text-agriGreen">01</p><h3 className="mt-8 font-display text-xl font-extrabold tracking-[-0.04em]">{t.about.card1Title}</h3><p className="mt-3 text-sm leading-6 text-white/58">{t.about.card1Text}</p></div>
+          <div className="rounded-[24px] bg-agriMint p-6 text-agriDark"><p className="font-display text-4xl font-extrabold tracking-[-0.07em] text-agriGreen">02</p><h3 className="mt-8 font-display text-xl font-extrabold tracking-[-0.04em]">{t.about.card2Title}</h3><p className="mt-3 text-sm leading-6 text-agriDark/60">{t.about.card2Text}</p></div>
         </div>
       </div>
     </section>
