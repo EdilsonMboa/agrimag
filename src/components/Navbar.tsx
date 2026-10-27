@@ -20,7 +20,7 @@ export function BrandMark() {
       <img 
         src="/Images/Logo AgriMag-01.png" 
         alt="AgriMag" 
-        className="h-[130px] w-auto brightness-0 invert" 
+        className="h-[150px] w-auto brightness-0 invert" 
       />
     </a>
   );

@@ -50,7 +50,16 @@ export function QuoteModal({ open, service, onClose }: QuoteModalProps) {
               <label className="block"><span className="mb-1.5 block text-xs font-bold text-agriDark">Como podemos ajudar?</span><textarea required name="message" rows={3} className="focus-ring w-full resize-none rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none" placeholder="Descreva brevemente o seu projecto..." /></label>
               <button type="submit" className="focus-ring inline-flex w-full items-center justify-center gap-2 rounded-xl bg-agriGreen px-5 py-3.5 text-sm font-bold text-white transition hover:bg-[#08aa50]">Enviar pedido <Send className="h-4 w-4" /></button>
             </form>
-            <p className="mt-4 flex items-center justify-center gap-2 text-[11px] text-slate-400"><Phone className="h-3.5 w-3.5 text-agriGreen" /> Ou ligue +258 84 149 8204</p>
+            <p className="mt-4 flex items-center justify-center gap-2 text-[11px] text-slate-400">
+              <Phone className="h-3.5 w-3.5 text-agriGreen" />
+              Ou ligue{' '}
+              <a
+                href="tel:+258841498204"
+                className="font-semibold text-slate-600 transition hover:text-agriGreen underline decoration-slate-300 underline-offset-2"
+              >
+                +258 84 149 8204
+              </a>
+            </p>
           </>
         )}
       </div>

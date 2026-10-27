@@ -1,6 +1,15 @@
 import { ArrowDownRight, ArrowUpRight, BookOpen, MapPin, Sprout, TrendingUp } from 'lucide-react';
 
-export function Hero({ onRequestQuote }: { onRequestQuote: () => void }) {
+type HeroProps = {
+  onRequestQuote: () => void;
+  onExploreMagazines: () => void;
+};
+
+
+export function Hero({
+  onRequestQuote,
+  onExploreMagazines,
+}: HeroProps) {
   return (
     <section id="inicio" className="relative isolate overflow-hidden bg-agriDark pt-[112px] text-white lg:pt-0">
       <div className="pointer-events-none absolute inset-0 noise-overlay opacity-80" />
@@ -18,9 +27,13 @@ export function Hero({ onRequestQuote }: { onRequestQuote: () => void }) {
             A AgriMag é a primeira revista e plataforma de agronegócios de Moçambique — informação que aproxima pessoas, negócios e oportunidades que fazem o sector crescer.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <a href="#revistas" className="focus-ring inline-flex items-center justify-center gap-2 rounded-full bg-agriGreen px-5 py-3.5 text-sm font-bold text-white shadow-xl shadow-black/15 transition hover:-translate-y-0.5 hover:bg-[#08aa50]">
-              Explorar as revistas <ArrowUpRight className="h-4 w-4" />
-            </a>
+            <button
+              onClick={onExploreMagazines}
+              className="focus-ring inline-flex items-center justify-center gap-2 rounded-full bg-agriGreen px-5 py-3.5 text-sm font-bold text-white shadow-xl shadow-black/15 transition hover:-translate-y-0.5 hover:bg-[#08aa50]"
+            >
+              Explorar as revistas
+              <ArrowUpRight className="h-4 w-4" />
+            </button>
             <button onClick={onRequestQuote} className="focus-ring inline-flex items-center justify-center gap-2 rounded-full border border-white/24 px-5 py-3.5 text-sm font-bold text-white transition hover:border-white/50 hover:bg-white/8">
               Falar com a equipa <ArrowDownRight className="h-4 w-4" />
             </button>

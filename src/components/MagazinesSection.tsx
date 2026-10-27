@@ -29,7 +29,7 @@ export function MagazinesSection() {
         </div>
 
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {magazines.map((magazine, index) => (
+          {magazines.slice(0, 3).map((magazine, index) => (
             <article key={magazine.id} className="group overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
               <div className="relative h-[330px] overflow-hidden" style={{ background: `linear-gradient(135deg, ${magazine.accent}, #03454D)` }}>
                 <img src={magazine.coverImage} alt={`Capa da ${magazine.edition}`} className="absolute inset-0 h-full w-full object-cover mix-blend-multiply opacity-70 transition duration-700 group-hover:scale-105" />
@@ -60,7 +60,7 @@ export function MagazinesSection() {
           ))}
         </div>
 
-        <div className="mt-7 flex items-center justify-center gap-2 text-xs text-slate-400"><CalendarDays className="h-4 w-4 text-agriGreen" /> Consulte o arquivo completo através da nossa equipa.</div>
+        {/* <div className="mt-7 flex items-center justify-center gap-2 text-xs text-slate-400"><CalendarDays className="h-4 w-4 text-agriGreen" /> Consulte o arquivo completo através da nossa equipa.</div> */}
       </div>
     </section>
   );

@@ -7,6 +7,8 @@ import { QuoteModal } from './components/QuoteModal';
 import { ServicesSection } from './components/ServicesSection';
 import { Sidebar } from './components/Sidebar';
 import { SubscriptionSection } from './components/SubscriptionSection';
+import { MagazinesLibraryModal } from './components/MagazinesLibraryModal';
+
 
 const trackedSections = ['inicio', 'sobre', 'revistas', 'servicos', 'subscricao', 'contactos'];
 
@@ -32,6 +34,8 @@ export default function App() {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [quoteService, setQuoteService] = useState<string | undefined>();
   const [activeSection, setActiveSection] = useState('inicio');
+  const [magazinesLibraryOpen, setMagazinesLibraryOpen] = useState(false);
+
 
   useEffect(() => {
     const observers = trackedSections.map((id) => {
@@ -61,7 +65,10 @@ export default function App() {
       <Navbar activeSection={activeSection} onOpenMenu={() => setDrawerOpen(true)} onRequestQuote={() => openQuote()} />
       <Sidebar open={drawerOpen} onClose={() => setDrawerOpen(false)} onRequestQuote={() => openQuote()} />
       <main>
-        <Hero onRequestQuote={() => openQuote()} />
+        <Hero
+          onRequestQuote={() => openQuote()}
+          onExploreMagazines={() => setMagazinesLibraryOpen(true)}
+        />
         <AboutSection />
         <MagazinesSection />
         <ServicesSection onRequestQuote={openQuote} />
@@ -69,6 +76,10 @@ export default function App() {
       </main>
       <Footer />
       <QuoteModal open={quoteOpen} service={quoteService} onClose={() => setQuoteOpen(false)} />
+      <MagazinesLibraryModal
+        open={magazinesLibraryOpen}
+        onClose={() => setMagazinesLibraryOpen(false)}
+      />
     </div>
   );
 }
