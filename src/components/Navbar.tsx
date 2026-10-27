@@ -14,16 +14,14 @@ const links = [
   { label: 'Contactos', href: '#contactos' },
 ];
 
-export function BrandMark({ light = false }: { light?: boolean }) {
+export function BrandMark() {
   return (
     <a href="#inicio" className="group inline-flex items-center gap-2.5" aria-label="AgriMag — início">
-      <span className={`relative grid h-10 w-10 place-items-center overflow-hidden rounded-[14px] ${light ? 'bg-white/10' : 'bg-agriDark'} transition-transform group-hover:-rotate-3`}>
-        <Leaf className="h-5 w-5 -rotate-12 text-agriGreen" strokeWidth={2.5} />
-        <span className={`absolute bottom-1.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full ${light ? 'bg-white' : 'bg-white'}`} />
-      </span>
-      <span className="font-display text-[21px] font-extrabold tracking-[-0.055em]">
-        <span className={light ? 'text-white' : 'text-agriDark'}>Agri</span><span className="text-agriGreen">Mag</span>
-      </span>
+      <img 
+        src="/Images/Logo AgriMag-01.png" 
+        alt="AgriMag" 
+        className="h-[130px] w-auto brightness-0 invert" 
+      />
     </a>
   );
 }
@@ -33,7 +31,7 @@ export function Navbar({ activeSection, onOpenMenu, onRequestQuote }: NavbarProp
     <>
       <header className="sticky inset-x-0 top-0 z-40 hidden h-20 border-b border-white/10 bg-agriDark/95 text-white shadow-lg shadow-agriDark/5 backdrop-blur-lg lg:block">
         <div className="container-shell flex h-full items-center justify-between gap-8">
-          <BrandMark light />
+          <BrandMark />
           <nav className="flex items-center gap-7" aria-label="Navegação principal">
             {links.map((link) => {
               const section = link.href.slice(1);

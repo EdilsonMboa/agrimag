@@ -46,10 +46,10 @@ export function MagazinesSection() {
               <div className="p-5 sm:p-6">
                 <p className="min-h-[48px] text-sm leading-6 text-slate-500">{magazine.excerpt}</p>
                 <div className="mt-5 flex items-end justify-between border-t border-slate-100 pt-4">
-                  <div>
+                  {/* <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Edição impressa</p>
                     <p className="mt-1 font-display text-xl font-extrabold tracking-[-0.04em] text-agriDark">{magazine.price}</p>
-                  </div>
+                  </div> */}
                   <button onClick={() => handleDownload(magazine.edition)} className="focus-ring inline-flex items-center gap-2 rounded-full bg-agriDark px-3.5 py-2.5 text-xs font-bold text-white transition hover:bg-agriGreen">
                     {downloaded === magazine.edition ? <Check className="h-3.5 w-3.5" /> : <Download className="h-3.5 w-3.5" />}
                     {downloaded === magazine.edition ? 'Descarregado' : 'Baixar Revista (PDF)'}
