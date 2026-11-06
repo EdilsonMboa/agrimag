@@ -4,6 +4,7 @@ import { magazines } from '../data/magazines';
 import { downloadMagazinePdf } from '../lib/downloadPdf';
 import { useLanguage } from '../i18n/LanguageContext';
 import { magazineCopy } from '../i18n/translations';
+import { usePublishedMagazines } from '../firebase/usePublications';
 
 type MagazinesLibraryModalProps = {
   open: boolean;
@@ -18,13 +19,14 @@ export function MagazinesLibraryModal({
 }: MagazinesLibraryModalProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const { language, t } = useLanguage();
+  const { items: publishedMagazines } = usePublishedMagazines(magazines);
 
-  const totalPages = Math.ceil(magazines.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(publishedMagazines.length / ITEMS_PER_PAGE);
   
   const paginatedMagazines = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return magazines.slice(start, start + ITEMS_PER_PAGE);
-  }, [currentPage]);
+    return publishedMagazines.slice(start, start + ITEMS_PER_PAGE);
+  }, [currentPage, publishedMagazines]);
 
   if (!open) return null;
 
@@ -91,11 +93,11 @@ export function MagazinesLibraryModal({
 
                 <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 text-white">
                   <span className="inline-block rounded-md bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm">
-                    {copy.edition}
+                    {copy?.edition ?? magazine.edition}
                   </span>
 
                   <h3 className="mt-1.5 sm:mt-2 font-display text-base sm:text-lg font-bold leading-snug line-clamp-1">
-                    {copy.title}
+                    {copy?.title ?? magazine.title}
                   </h3>
                 </div>
               </div>
@@ -104,7 +106,7 @@ export function MagazinesLibraryModal({
                 <div className="space-y-1.5 sm:space-y-2">
                   <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
                     <CalendarDays className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-agriGreen" />
-                    <span>{copy.date}</span>
+                    <span>{copy?.date ?? magazine.date}</span>
                   </div>
 
                   <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
@@ -114,13 +116,13 @@ export function MagazinesLibraryModal({
                 </div>
 
                 <button
-                  onClick={() =>
-                    downloadMagazinePdf(
-                      copy.edition,
-                      copy.date,
-                      copy.title,
-                    )
-                  }
+                  onClick={() => {
+                    if (magazine.pdfUrl) {
+                      window.open(magazine.pdfUrl, '_blank', 'noopener,noreferrer');
+                    } else {
+                      downloadMagazinePdf(copy?.edition ?? magazine.edition, copy?.date ?? magazine.date, copy?.title ?? magazine.title);
+                    }
+                  }}
                   className="focus-ring mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-agriGreen px-4 py-3 text-xs font-bold text-white shadow-sm transition-all hover:bg-[#079947] hover:shadow-md active:scale-[0.98]"
                 >
                   <Download className="h-4 w-4" />

@@ -4,16 +4,22 @@ import { magazines } from '../data/magazines';
 import { downloadMagazinePdf } from '../lib/downloadPdf';
 import { useLanguage } from '../i18n/LanguageContext';
 import { magazineCopy } from '../i18n/translations';
+import { usePublishedMagazines } from '../firebase/usePublications';
 
 export function MagazinesSection() {
   const [downloaded, setDownloaded] = useState<string | null>(null);
   const { language, t } = useLanguage();
+  const { items: publishedMagazines } = usePublishedMagazines(magazines);
 
   const handleDownload = (edition: string) => {
-    const magazine = magazines.find((item) => item.edition === edition);
+    const magazine = publishedMagazines.find((item) => item.edition === edition);
     if (!magazine) return;
     const copy = magazineCopy[language][magazine.id] ?? magazineCopy[language][magazine.id % 10];
-    downloadMagazinePdf(copy.edition, copy.date, copy.title);
+    if (magazine.pdfUrl) {
+      window.open(magazine.pdfUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      downloadMagazinePdf(copy?.edition ?? magazine.edition, copy?.date ?? magazine.date, copy?.title ?? magazine.title);
+    }
     setDownloaded(edition);
     window.setTimeout(() => setDownloaded(null), 3500);
   };
@@ -33,7 +39,7 @@ export function MagazinesSection() {
         </div>
 
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {magazines.slice(0, 3).map((magazine, index) => (
+          {publishedMagazines.slice(0, 3).map((magazine, index) => (
             (() => {
               const copy = magazineCopy[language][magazine.id] ?? magazineCopy[language][magazine.id % 10];
               return (
@@ -42,16 +48,16 @@ export function MagazinesSection() {
                 <img src={magazine.coverImage} alt={`Capa da ${magazine.edition}`} className="absolute inset-0 h-full w-full object-cover mix-blend-multiply opacity-70 transition duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-agriDark via-agriDark/10 to-transparent" />
                 <div className="absolute inset-x-5 top-5 flex items-start justify-between">
-                  <span className="rounded-full bg-agriGreen px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white">{copy.edition}</span>
+                  <span className="rounded-full bg-agriGreen px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white">{copy?.edition ?? magazine.edition}</span>
                   <span className="grid h-9 w-9 place-items-center rounded-full bg-white/15 text-white backdrop-blur-sm"><FileText className="h-4 w-4" /></span>
                 </div>
                 <div className="absolute inset-x-5 bottom-5 text-white">
-                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-white/60">{copy.date}</p>
-                  <h3 className="max-w-xs font-display text-2xl font-extrabold leading-[1.04] tracking-[-0.05em]">{copy.title}</h3>
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-white/60">{copy?.date ?? magazine.date}</p>
+                  <h3 className="max-w-xs font-display text-2xl font-extrabold leading-[1.04] tracking-[-0.05em]">{copy?.title ?? magazine.title}</h3>
                 </div>
               </div>
               <div className="p-5 sm:p-6">
-                <p className="min-h-[48px] text-sm leading-6 text-slate-500">{copy.excerpt}</p>
+                <p className="min-h-[48px] text-sm leading-6 text-slate-500">{copy?.excerpt ?? magazine.excerpt}</p>
                 <div className="mt-5 flex items-end justify-between border-t border-slate-100 pt-4">
                   {/* <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Edição impressa</p>

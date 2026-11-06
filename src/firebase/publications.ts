@@ -1,5 +1,5 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, serverTimestamp, updateDoc } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { firestore, firebaseStorage } from './config';
 
 export type PublicationCategory = 'regular' | 'brochure' | 'ministerial' | 'guide';
@@ -27,11 +27,16 @@ function requireFirebase() {
 }
 
 export async function listPublishedPublications(): Promise<PublicationRecord[]> {
+  const items = await listPublications();
+  return items.filter((item) => item.status === 'published');
+}
+
+export async function listPublications(): Promise<PublicationRecord[]> {
   const { firestore: db } = requireFirebase();
   const snapshot = await getDocs(collection(db, 'publications'));
   return snapshot.docs
     .map((item) => ({ id: item.id, ...item.data() } as PublicationRecord))
-    .filter((item) => item.status === 'published');
+    .filter((item) => item.status !== 'archived');
 }
 
 export async function uploadPublicationAsset(file: File, publicationId: string, kind: 'pdf' | 'thumbnail') {
@@ -58,5 +63,9 @@ export async function updatePublication(id: string, changes: Partial<Publication
 
 export async function deletePublication(id: string) {
   const { firestore: db } = requireFirebase();
+  const existing = (await getDocs(collection(db, 'publications'))).docs.find((item) => item.id === id)?.data() as Partial<PublicationRecord> | undefined;
+  for (const path of [existing?.pdfStoragePath, existing?.thumbnailStoragePath]) {
+    if (path && firebaseStorage) await deleteObject(ref(firebaseStorage, path)).catch(() => undefined);
+  }
   await deleteDoc(doc(db, 'publications', id));
 }

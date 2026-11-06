@@ -2,6 +2,8 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react';
 import { Activity, ArrowLeft, BarChart3, Check, CheckCircle2, ChevronDown, Cloud, Download, Edit3, FileImage, FileText, FileUp, FolderOpen, LayoutDashboard, Library, LineChart, MoreHorizontal, Plus, Search, Settings2, Trash2, UploadCloud, Users, X } from 'lucide-react';
 import { magazines } from '../data/magazines';
 import { useLanguage } from '../i18n/LanguageContext';
+import { createPublication, deletePublication, listPublications, updatePublication, uploadPublicationAsset, type PublicationRecord } from '../firebase/publications';
+import { isFirebaseConfigured } from '../firebase/config';
 
 type PublicationStatus = 'published' | 'draft';
 type DashboardTab = 'analytics' | 'publications';
@@ -21,6 +23,23 @@ type AdminMagazine = {
   fileName: string;
   thumbnailName: string;
 };
+
+function fromPublication(item: PublicationRecord): AdminMagazine {
+  return {
+    id: item.id,
+    edition: item.editionNumber,
+    title: item.title,
+    category: item.category,
+    description: item.description,
+    date: item.publicationDate,
+    pages: item.pages,
+    price: '150,00 MT',
+    status: item.status === 'published' ? 'published' : 'draft',
+    freeAccess: true,
+    fileName: item.pdfStoragePath?.split('/').pop() || 'publication.pdf',
+    thumbnailName: item.thumbnailStoragePath?.split('/').pop() || 'cover-not-provided.jpg',
+  };
+}
 
 type AdminPanelProps = { onBack: () => void };
 
@@ -71,9 +90,9 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
   const { language } = useLanguage();
   const isEnglish = language === 'en';
   const text = isEnglish ? {
-    back: 'Back to website', demo: 'MOCK MODE · API NOT CONNECTED', workspace: 'Administration workspace', title: 'AgriMag dashboard', subtitle: 'Monitor the website and manage the publication catalogue from one workspace.', analytics: 'Analytics', publications: 'Publications', overview: 'Website overview', totalVisits: 'Total visits', uniqueUsers: 'Unique users', bounce: 'Bounce rate', downloads: 'Magazine downloads', vsPeriod: 'vs. previous period', traffic: 'Traffic trends', daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', popular: 'Popular content', articles: 'Most read articles', editions: 'Most downloaded editions', upload: 'Upload publication', uploadSubtitle: 'Prepare a new magazine, brochure or institutional document.', titleLabel: 'Title', titlePlaceholder: 'Publication title', edition: 'Edition / number', editionPlaceholder: 'Edition No. 09', category: 'Category', description: 'Description', descriptionPlaceholder: 'Briefly describe this publication...', date: 'Publication date', access: 'Free access', accessHint: 'No cost for visitors', pdf: 'PDF file', cover: 'Cover image', selectPdf: 'Select PDF', selectCover: 'Select cover', storage: 'Cloud storage', storageHint: 'Firebase Storage integration ready for API phase', saveDraft: 'Save draft', update: 'Update publication', cancel: 'Cancel', required: 'Complete the required fields and select a PDF.', pdfInvalid: 'Select a PDF up to 20 MB.', coverInvalid: 'Select a JPG, PNG or WebP image up to 5 MB.', saved: 'Publication saved in mock mode.', updated: 'Publication updated in mock mode.', catalogue: 'Publication catalogue', search: 'Search publications', edit: 'Edit', delete: 'Delete', noResults: 'No publications found.', published: 'Published', draft: 'Draft', free: 'Free', paid: 'Paid', pages: 'pages', all: 'All', uploadProgress: 'Uploading to mock storage...', popularArticle1: 'How value chains can unlock Mozambique’s growth', popularArticle2: 'Women leading the next agricultural cycle', popularArticle3: 'Investment and technology in the field', storageBadge: 'Storage not connected'
+    back: 'Back to website', demo: 'FIREBASE CONNECTED · REAL STORAGE', workspace: 'Administration workspace', title: 'AgriMag dashboard', subtitle: 'Monitor the website and manage the publication catalogue from one workspace.', analytics: 'Analytics', publications: 'Publications', overview: 'Website overview', totalVisits: 'Total visits', uniqueUsers: 'Unique users', bounce: 'Bounce rate', downloads: 'Magazine downloads', vsPeriod: 'vs. previous period', traffic: 'Traffic trends', daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', popular: 'Popular content', articles: 'Most read articles', editions: 'Most downloaded editions', upload: 'Upload publication', uploadSubtitle: 'Prepare a new magazine, brochure or institutional document.', titleLabel: 'Title', titlePlaceholder: 'Publication title', edition: 'Edition / number', editionPlaceholder: 'Edition No. 09', category: 'Category', description: 'Description', descriptionPlaceholder: 'Briefly describe this publication...', date: 'Publication date', access: 'Free access', accessHint: 'No cost for visitors', pdf: 'PDF file', cover: 'Cover image', selectPdf: 'Select PDF', selectCover: 'Select cover', storage: 'Cloud storage', storageHint: 'Firebase Storage active', saveDraft: 'Save draft', update: 'Update publication', cancel: 'Cancel', required: 'Complete the required fields and select a PDF.', pdfInvalid: 'Select a PDF up to 20 MB.', coverInvalid: 'Select a JPG, PNG or WebP image up to 5 MB.', saved: 'Publication saved to Firebase.', updated: 'Publication updated in mock mode.', catalogue: 'Publication catalogue', search: 'Search publications', edit: 'Edit', delete: 'Delete', noResults: 'No publications found.', published: 'Published', draft: 'Draft', free: 'Free', paid: 'Paid', pages: 'pages', all: 'All', uploadProgress: 'Uploading to Firebase Storage...', popularArticle1: 'How value chains can unlock Mozambique’s growth', popularArticle2: 'Women leading the next agricultural cycle', popularArticle3: 'Investment and technology in the field', storageBadge: 'Firebase Storage'
   } : {
-    back: 'Voltar ao website', demo: 'MODO MOCK · API NÃO LIGADA', workspace: 'Área de administração', title: 'Dashboard AgriMag', subtitle: 'Acompanhe o website e faça a gestão do catálogo de publicações num só espaço.', analytics: 'Analytics', publications: 'Publicações', overview: 'Visão geral do website', totalVisits: 'Total de visitas', uniqueUsers: 'Utilizadores únicos', bounce: 'Taxa de rejeição', downloads: 'Downloads de revistas', vsPeriod: 'vs. período anterior', traffic: 'Tendências de tráfego', daily: 'Diário', weekly: 'Semanal', monthly: 'Mensal', popular: 'Conteúdos populares', articles: 'Artigos mais lidos', editions: 'Edições mais descarregadas', upload: 'Carregar publicação', uploadSubtitle: 'Prepare uma nova revista, brochura ou documento institucional.', titleLabel: 'Título', titlePlaceholder: 'Título da publicação', edition: 'Edição / número', editionPlaceholder: 'Edição N.º 09', category: 'Categoria', description: 'Descrição', descriptionPlaceholder: 'Descreva brevemente esta publicação...', date: 'Data de publicação', access: 'Acesso livre', accessHint: 'Sem custos para visitantes', pdf: 'Ficheiro PDF', cover: 'Imagem de capa', selectPdf: 'Seleccionar PDF', selectCover: 'Seleccionar capa', storage: 'Armazenamento cloud', storageHint: 'Integração Firebase Storage preparada para a fase de API', saveDraft: 'Guardar rascunho', update: 'Actualizar publicação', cancel: 'Cancelar', required: 'Preencha os campos obrigatórios e seleccione um PDF.', pdfInvalid: 'Seleccione um PDF até 20 MB.', coverInvalid: 'Seleccione uma imagem JPG, PNG ou WebP até 5 MB.', saved: 'Publicação guardada no modo mock.', updated: 'Publicação actualizada no modo mock.', catalogue: 'Catálogo de publicações', search: 'Pesquisar publicações', edit: 'Editar', delete: 'Eliminar', noResults: 'Nenhuma publicação encontrada.', published: 'Publicada', draft: 'Rascunho', free: 'Livre', paid: 'Pago', pages: 'páginas', all: 'Todas', uploadProgress: 'A carregar para o armazenamento mock...', popularArticle1: 'Como as cadeias de valor podem acelerar o crescimento de Moçambique', popularArticle2: 'Mulheres que lideram o próximo ciclo agrícola', popularArticle3: 'Investimento e tecnologia no terreno', storageBadge: 'Armazenamento não ligado'
+    back: 'Voltar ao website', demo: 'FIREBASE LIGADO · STORAGE REAL', workspace: 'Área de administração', title: 'Dashboard AgriMag', subtitle: 'Acompanhe o website e faça a gestão do catálogo de publicações num só espaço.', analytics: 'Analytics', publications: 'Publicações', overview: 'Visão geral do website', totalVisits: 'Total de visitas', uniqueUsers: 'Utilizadores únicos', bounce: 'Taxa de rejeição', downloads: 'Downloads de revistas', vsPeriod: 'vs. período anterior', traffic: 'Tendências de tráfego', daily: 'Diário', weekly: 'Semanal', monthly: 'Mensal', popular: 'Conteúdos populares', articles: 'Artigos mais lidos', editions: 'Edições mais descarregadas', upload: 'Carregar publicação', uploadSubtitle: 'Prepare uma nova revista, brochura ou documento institucional.', titleLabel: 'Título', titlePlaceholder: 'Título da publicação', edition: 'Edição / número', editionPlaceholder: 'Edição N.º 09', category: 'Categoria', description: 'Descrição', descriptionPlaceholder: 'Descreva brevemente esta publicação...', date: 'Data de publicação', access: 'Acesso livre', accessHint: 'Sem custos para visitantes', pdf: 'Ficheiro PDF', cover: 'Imagem de capa', selectPdf: 'Seleccionar PDF', selectCover: 'Seleccionar capa', storage: 'Armazenamento cloud', storageHint: 'Firebase Storage activo', saveDraft: 'Guardar rascunho', update: 'Actualizar publicação', cancel: 'Cancelar', required: 'Preencha os campos obrigatórios e seleccione um PDF.', pdfInvalid: 'Seleccione um PDF até 20 MB.', coverInvalid: 'Seleccione uma imagem JPG, PNG ou WebP até 5 MB.', saved: 'Publicação guardada no Firebase.', updated: 'Publicação actualizada no modo mock.', catalogue: 'Catálogo de publicações', search: 'Pesquisar publicações', edit: 'Editar', delete: 'Eliminar', noResults: 'Nenhuma publicação encontrada.', published: 'Publicada', draft: 'Rascunho', free: 'Livre', paid: 'Pago', pages: 'páginas', all: 'Todas', uploadProgress: 'A carregar para o Firebase Storage...', popularArticle1: 'Como as cadeias de valor podem acelerar o crescimento de Moçambique', popularArticle2: 'Mulheres que lideram o próximo ciclo agrícola', popularArticle3: 'Investimento e tecnologia no terreno', storageBadge: 'Firebase Storage'
   };
 
   const [activeTab, setActiveTab] = useState<DashboardTab>('analytics');
@@ -95,10 +114,26 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
   const [formMessage, setFormMessage] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [loadingPublications, setLoadingPublications] = useState(isFirebaseConfigured);
 
   const publishedCount = items.filter((item) => item.status === 'published').length;
   const draftCount = items.filter((item) => item.status === 'draft').length;
   const filteredItems = useMemo(() => items.filter((item) => `${item.edition} ${item.title} ${item.category}`.toLowerCase().includes(query.toLowerCase())), [items, query]);
+
+  const loadPublications = async () => {
+    if (!isFirebaseConfigured) return;
+    setLoadingPublications(true);
+    try {
+      const records = await listPublications();
+      setItems(records.map(fromPublication));
+    } catch (error) {
+      setFormMessage(error instanceof Error ? error.message : 'Não foi possível carregar as publicações.');
+    } finally {
+      setLoadingPublications(false);
+    }
+  };
+
+  useEffect(() => { void loadPublications(); }, []);
 
   useEffect(() => {
     if (!uploading) return undefined;
@@ -135,23 +170,39 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
 
   const editItem = (item: AdminMagazine) => { setEditingId(item.id); setEdition(item.edition); setTitle(item.title); setCategory(item.category); setDescription(item.description); setDate(item.date); setFreeAccess(item.freeAccess); setPages(String(item.pages || '')); setActiveTab('publications'); setFormMessage(''); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
-  const deleteItem = (id: string) => { if (window.confirm(isEnglish ? 'Delete this publication from the mock catalogue?' : 'Eliminar esta publicação do catálogo mock?')) setItems((current) => current.filter((item) => item.id !== id)); };
+  const deleteItem = async (id: string) => {
+    if (!window.confirm(isEnglish ? 'Delete this publication from Firebase?' : 'Eliminar esta publicação do Firebase?')) return;
+    try {
+      await deletePublication(id);
+      setItems((current) => current.filter((item) => item.id !== id));
+    } catch (error) {
+      setFormMessage(error instanceof Error ? error.message : 'Não foi possível eliminar a publicação.');
+    }
+  };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if ((!editingId && !file) || !edition.trim() || !title.trim() || !category || !description.trim()) { setFormMessage(text.required); return; }
-    if (editingId) {
-      setItems((current) => current.map((item) => item.id === editingId ? { ...item, edition: edition.trim(), title: title.trim(), category, description: description.trim(), date: date.trim() || 'A definir', freeAccess, pages: Number(pages) || 0, fileName: file?.name || item.fileName, thumbnailName: thumbnail?.name || item.thumbnailName } : item));
-      setFormMessage(text.updated);
-      resetForm();
-      setFormMessage(text.updated);
-      return;
+    setUploading(true); setUploadProgress(8); setFormMessage('');
+    try {
+      const base = { editionNumber: edition.trim(), title: title.trim(), category, description: description.trim(), publicationDate: date.trim() || 'A definir', pages: Number(pages) || 0, isFree: true as const, status: 'draft' as const };
+      if (editingId) {
+        const assets: Record<string, string> = {};
+        if (file) { const uploaded = await uploadPublicationAsset(file, editingId, 'pdf'); assets.pdfUrl = uploaded.url; assets.pdfStoragePath = uploaded.path; }
+        if (thumbnail) { const uploaded = await uploadPublicationAsset(thumbnail, editingId, 'thumbnail'); assets.thumbnailUrl = uploaded.url; assets.thumbnailStoragePath = uploaded.path; }
+        await updatePublication(editingId, { ...base, ...assets });
+        await loadPublications();
+        resetForm(); setFormMessage(text.updated);
+      } else if (file) {
+        await createPublication(base, file, thumbnail || undefined);
+        await loadPublications();
+        resetForm(); setFormMessage(text.saved);
+      }
+    } catch (error) {
+      setFormMessage(error instanceof Error ? error.message : 'Não foi possível guardar a publicação.');
+    } finally {
+      setUploading(false); setUploadProgress(100);
     }
-    setUploading(true); setUploadProgress(8);
-    window.setTimeout(() => {
-      setItems((current) => [{ id: `mock-${Date.now()}`, edition: edition.trim(), title: title.trim(), category, description: description.trim(), date: date.trim() || 'A definir', pages: Number(pages) || 0, price: '150,00 MT', status: 'draft', freeAccess, fileName: file?.name || 'publication.pdf', thumbnailName: thumbnail?.name || 'cover-not-provided.jpg' }, ...current]);
-      setFormMessage(text.saved); resetForm(); setFormMessage(text.saved);
-    }, 1500);
   };
 
   return <div className="min-h-screen bg-[#061f25] text-white">

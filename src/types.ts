@@ -6,6 +6,7 @@ export type Magazine = {
   excerpt: string;
   price: string;
   coverImage: string;
+  pdfUrl?: string;
   accent: string;
   pages: number;
 };
