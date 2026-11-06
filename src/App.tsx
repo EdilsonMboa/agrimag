@@ -11,6 +11,7 @@ import { MagazinesLibraryModal } from './components/MagazinesLibraryModal';
 import { useLanguage } from './i18n/LanguageContext';
 import { AdminPanel } from './components/AdminPanel';
 import { PortfolioSection } from './components/PortfolioSection';
+import { AdminRoute } from './components/AdminRoute';
 
 
 const trackedSections = ['inicio', 'sobre', 'revistas', 'servicos', 'portfolio', 'subscricao', 'contactos'];
@@ -78,7 +79,7 @@ export default function App() {
     setIsAdminRoute(false);
   };
 
-  if (isAdminRoute) return <AdminPanel onBack={leaveAdmin} />;
+  if (isAdminRoute) return <AdminRoute onBack={leaveAdmin}><AdminPanel onBack={leaveAdmin} /></AdminRoute>;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
