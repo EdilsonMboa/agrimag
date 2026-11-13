@@ -19,7 +19,7 @@ export function MagazinesLibraryModal({
 }: MagazinesLibraryModalProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const { language, t } = useLanguage();
-  const { items: publishedMagazines } = usePublishedMagazines(magazines);
+  const { items: publishedMagazines, loading, error } = usePublishedMagazines(magazines);
 
   const totalPages = Math.ceil(publishedMagazines.length / ITEMS_PER_PAGE);
   
@@ -68,7 +68,12 @@ export function MagazinesLibraryModal({
           </p>
         </div>
 
+        {loading && <p className="mt-6 rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">{language === 'en' ? 'Loading published magazines...' : 'A carregar revistas publicadas...'}</p>}
+        {!loading && error && <p className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-sm text-red-700">{language === 'en' ? 'The magazine catalogue is temporarily unavailable.' : 'O catálogo de revistas está temporariamente indisponível.'}</p>}
+        {!loading && !error && publishedMagazines.length === 0 && <p className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">{language === 'en' ? 'No published magazines yet.' : 'Ainda não existem revistas publicadas.'}</p>}
+
         {/* Grelha de Revistas (1 coluna no telemóvel, 2 no tablet, 3 no PC) */}
+        {!loading && !error && publishedMagazines.length > 0 && <>
         <div className="mt-6 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {paginatedMagazines.map((magazine) => {
             const copy = magazineCopy[language][magazine.id] ?? magazineCopy[language][magazine.id % 10];
@@ -178,7 +183,7 @@ export function MagazinesLibraryModal({
               </button>
             </div>
           </div>
-        )}
+        )}</>}
       </div>
     </div>
   );

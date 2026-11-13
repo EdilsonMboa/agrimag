@@ -19,7 +19,7 @@ function toMagazine(id: number, item: Awaited<ReturnType<typeof listPublishedPub
 }
 
 export function usePublishedMagazines(fallback: Magazine[]) {
-  const [items, setItems] = useState<Magazine[]>(fallback);
+  const [items, setItems] = useState<Magazine[]>(isFirebaseConfigured ? [] : fallback);
   const [loading, setLoading] = useState(isFirebaseConfigured);
   const [error, setError] = useState('');
 

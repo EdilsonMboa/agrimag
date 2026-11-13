@@ -9,7 +9,7 @@ import { usePublishedMagazines } from '../firebase/usePublications';
 export function MagazinesSection() {
   const [downloaded, setDownloaded] = useState<string | null>(null);
   const { language, t } = useLanguage();
-  const { items: publishedMagazines } = usePublishedMagazines(magazines);
+  const { items: publishedMagazines, loading, error } = usePublishedMagazines(magazines);
 
   const handleDownload = (edition: string) => {
     const magazine = publishedMagazines.find((item) => item.edition === edition);
@@ -38,7 +38,10 @@ export function MagazinesSection() {
           </div>
         </div>
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-3">
+        {loading && <p className="mt-14 rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">{language === 'en' ? 'Loading published magazines...' : 'A carregar revistas publicadas...'}</p>}
+        {!loading && error && <p className="mt-14 rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-sm text-red-700">{language === 'en' ? 'The magazine catalogue is temporarily unavailable.' : 'O catálogo de revistas está temporariamente indisponível.'}</p>}
+        {!loading && !error && publishedMagazines.length === 0 && <p className="mt-14 rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">{language === 'en' ? 'No published magazines yet.' : 'Ainda não existem revistas publicadas.'}</p>}
+        {!loading && !error && publishedMagazines.length > 0 && <div className="mt-14 grid gap-6 lg:grid-cols-3">
           {publishedMagazines.slice(0, 3).map((magazine, index) => (
             (() => {
               const copy = magazineCopy[language][magazine.id] ?? magazineCopy[language][magazine.id % 10];
@@ -73,7 +76,7 @@ export function MagazinesSection() {
               );
             })()
           ))}
-        </div>
+        </div>}
 
         {/* <div className="mt-7 flex items-center justify-center gap-2 text-xs text-slate-400"><CalendarDays className="h-4 w-4 text-agriGreen" /> {t.magazines.archiveHint}</div> */}
       </div>
