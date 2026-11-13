@@ -63,7 +63,13 @@ export async function uploadPublicationAsset(file: File, publicationId: string, 
 export async function createPublication(input: Omit<PublicationRecord, 'id' | 'pdfUrl' | 'thumbnailUrl' | 'pdfStoragePath' | 'thumbnailStoragePath'>, pdf: File, thumbnail?: File) {
   const { firestore: db } = requireFirebase();
   console.info('[AgriMag][Firestore][create:start]', { title: input.title, status: input.status, pdfName: pdf.name, thumbnailName: thumbnail?.name });
-  const publication = await addDoc(collection(db, 'publications'), { ...input, isFree: true, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+  let publication;
+  try {
+    publication = await addDoc(collection(db, 'publications'), { ...input, isFree: true, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+  } catch (error) {
+    console.error('[AgriMag][Firestore][create:error]', { error, code: (error as { code?: string }).code, message: error instanceof Error ? error.message : String(error) });
+    throw error;
+  }
   console.info('[AgriMag][Firestore][create:doc]', { id: publication.id });
   const pdfAsset = await uploadPublicationAsset(pdf, publication.id, 'pdf');
   const thumbnailAsset = thumbnail ? await uploadPublicationAsset(thumbnail, publication.id, 'thumbnail') : { path: '', url: '' };
