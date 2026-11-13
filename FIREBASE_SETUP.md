@@ -1,6 +1,6 @@
 # Configuração Firebase AgriMag
 
-O repositório está preparado para o projecto Firebase `fena-f00d0`. Nenhuma credencial privada deve ser guardada no GitHub.
+O repositório usa Firebase `fena-f00d0` para Authentication e Firestore, e Cloudflare R2 para PDFs, capas e imagens. Nenhuma credencial privada deve ser guardada no GitHub.
 
 ## 1. Activar os serviços
 
@@ -21,9 +21,10 @@ VITE_FIREBASE_STORAGE_BUCKET=...
 VITE_FIREBASE_MESSAGING_SENDER_ID=...
 VITE_FIREBASE_APP_ID=...
 VITE_FIREBASE_MEASUREMENT_ID=...
+VITE_R2_API_URL=https://agrimag-r2-api.<subdomain>.workers.dev
 ```
 
-O ficheiro `.env.local` está excluído pelo `.gitignore`.
+O ficheiro `.env.local` está excluído pelo `.gitignore`. A `VITE_R2_API_URL` é pública; as credenciais R2 ficam apenas nos secrets/bindings do Worker.
 
 ## 2. Criar a conta Admin
 
@@ -43,7 +44,11 @@ node scripts/set-admin-claim.mjs
 
 A aplicação só permite `/admin` quando o token Firebase contém `admin: true`. Não existe registo público de administradores.
 
-## 3. Publicar as regras
+## 3. Configurar o Worker R2
+
+Ver `workers/r2-api/README.md`. Criar o bucket `agrimag-media`, fazer login no Wrangler e publicar o Worker. O Worker valida o token Firebase e só permite uploads e eliminações com `admin: true`.
+
+## 4. Publicar as regras
 
 Com Firebase CLI autenticado e instalado:
 
@@ -54,14 +59,16 @@ firebase deploy --only firestore:rules,storage
 
 As regras permitem leitura pública apenas para publicações, portfólio e serviços publicados/activos. Escrita, alteração e eliminação requerem a custom claim `admin`.
 
-## 4. Próxima integração
+## 5. Integração de publicações
 
-A camada `src/firebase/publications.ts` já contém o contrato para:
+A camada `src/firebase/publications.ts` contém o contrato para:
 
 - Listar publicações publicadas.
 - Criar uma publicação.
 - Carregar PDF para `publications/{id}/pdf/`.
 - Carregar capa para `publications/{id}/thumbnail/`.
 - Actualizar e eliminar publicações.
+
+Quando `VITE_R2_API_URL` está definido, os ficheiros seguem para R2 através do Worker; sem essa variável, o serviço mantém fallback para Firebase Storage durante a migração.
 
 O passo seguinte é ligar estes serviços ao `AdminPanel` e substituir os mocks da homepage por consultas Firestore, mantendo fallback de loading/erro durante a migração.

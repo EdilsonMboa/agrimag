@@ -1,0 +1,11 @@
+name = "agrimag-r2-api"
+main = "src/index.ts"
+compatibility_date = "2026-11-13"
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "agrimag-media"
+
+[vars]
+FIREBASE_PROJECT_ID = "fena-f00d0"
+ALLOWED_ORIGIN = "https://fena-f00d0.web.app"

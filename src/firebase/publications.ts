@@ -1,6 +1,8 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { firestore, firebaseStorage } from './config';
+import { deleteR2Asset, uploadR2Asset } from '../r2/client';
+import { isR2Configured } from '../r2/config';
 
 export type PublicationCategory = 'regular' | 'brochure' | 'ministerial' | 'guide';
 export type PublicationStatus = 'draft' | 'published' | 'archived';
@@ -22,8 +24,8 @@ export type PublicationRecord = {
 };
 
 function requireFirebase() {
-  if (!firestore || !firebaseStorage) throw new Error('Firebase não está configurado neste ambiente.');
-  return { firestore, firebaseStorage };
+  if (!firestore) throw new Error('Firebase Firestore não está configurado neste ambiente.');
+  return { firestore };
 }
 
 export async function listPublishedPublications(): Promise<PublicationRecord[]> {
@@ -40,10 +42,14 @@ export async function listPublications(): Promise<PublicationRecord[]> {
 }
 
 export async function uploadPublicationAsset(file: File, publicationId: string, kind: 'pdf' | 'thumbnail') {
-  const { firebaseStorage: storage } = requireFirebase();
   const safeName = file.name.toLowerCase().replace(/[^a-z0-9.\-_]+/g, '-');
   const path = `publications/${publicationId}/${kind}/${Date.now()}-${safeName}`;
-  const snapshot = await uploadBytes(ref(storage, path), file, { contentType: file.type });
+  if (isR2Configured) {
+    const uploaded = await uploadR2Asset(file, path);
+    return { path: uploaded.key, url: uploaded.url };
+  }
+  if (!firebaseStorage) throw new Error('Configure VITE_R2_API_URL ou Firebase Storage antes de carregar ficheiros.');
+  const snapshot = await uploadBytes(ref(firebaseStorage, path), file, { contentType: file.type });
   return { path, url: await getDownloadURL(snapshot.ref) };
 }
 
@@ -65,7 +71,9 @@ export async function deletePublication(id: string) {
   const { firestore: db } = requireFirebase();
   const existing = (await getDocs(collection(db, 'publications'))).docs.find((item) => item.id === id)?.data() as Partial<PublicationRecord> | undefined;
   for (const path of [existing?.pdfStoragePath, existing?.thumbnailStoragePath]) {
-    if (path && firebaseStorage) await deleteObject(ref(firebaseStorage, path)).catch(() => undefined);
+    if (!path) continue;
+    if (isR2Configured) await deleteR2Asset(path).catch(() => undefined);
+    else if (firebaseStorage) await deleteObject(ref(firebaseStorage, path)).catch(() => undefined);
   }
   await deleteDoc(doc(db, 'publications', id));
 }
