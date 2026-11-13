@@ -1,0 +1,60 @@
+import type { News } from '../types';
+
+export const news: News[] = [
+  {
+    id: 1,
+    title: 'Novo centro de formação abre em Nampula',
+    body: 'O centro vai capacitar mais de 300 pequenos produtores por ano em técnicas de cultivo sustentável e gestão da produção.',
+    date: new Date('2024-03-12'),
+    coverImage: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=900&q=85',
+    accent: '#D6EAF2',
+  },
+  {
+    id: 2,
+    title: 'Colheita de milho cresce 18% este ano',
+    body: 'Graças às sementes melhoradas e ao apoio técnico no terreno, as comunidades parceiras registaram o melhor resultado dos últimos cinco anos.',
+    date: new Date('2024-02-20'),
+    coverImage: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=900&q=85',
+    accent: '#F2E8D6',
+  },
+  {
+    id: 3,
+    title: 'Parceria para levar crédito agrícola ao campo',
+    body: 'Uma nova parceria com instituições financeiras vai facilitar o acesso a microcrédito para agricultores em três províncias.',
+    date: new Date('2024-01-30'),
+    coverImage: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=85',
+    accent: '#E4F2D6',
+  },
+  {
+    id: 4,
+    title: 'Sistema de rega por gotejamento chega a Gaza',
+    body: 'A tecnologia reduz o consumo de água em até 40% e ajuda as famílias a produzir mesmo na época seca.',
+    date: new Date('2023-12-05'),
+    coverImage: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=900&q=85',
+    accent: '#D6F2EE',
+  },
+  {
+    id: 5,
+    title: 'Feira agrícola reúne mais de 80 produtores',
+    body: 'Produtores de todo o país apresentaram as suas colheitas, trocaram experiências e fecharam os primeiros contratos de venda directa.',
+    date: new Date('2023-11-18'),
+    coverImage: 'https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?auto=format&fit=crop&w=900&q=85',
+    accent: '#F2D6E4',
+  },
+  {
+    id: 6,
+    title: 'Jovens agricultores lançam cooperativa digital',
+    body: 'A plataforma permite acompanhar preços de mercado e organizar vendas em conjunto, directamente pelo telemóvel.',
+    date: new Date('2023-10-22'),
+    coverImage: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=85',
+    accent: '#E0D6F2',
+  },
+  {
+    id: 7,
+    title: 'Mulheres que fazem crescer Moçambique',
+    body: 'Histórias de liderança, inovação e resiliência no campo e nas cadeias de valor.',
+    date: new Date('2023-10-01'),
+    coverImage: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=85',
+    accent: '#E4F2D6',
+  },
+];

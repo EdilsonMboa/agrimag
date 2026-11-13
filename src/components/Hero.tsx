@@ -4,12 +4,14 @@ import { useLanguage } from '../i18n/LanguageContext';
 type HeroProps = {
   onRequestQuote: () => void;
   onExploreMagazines: () => void;
+  onInformation: () => void;
 };
 
 
 export function Hero({
   onRequestQuote,
   onExploreMagazines,
+  onInformation,
 }: HeroProps) {
   const { language, t } = useLanguage();
   const coverTitle = language === 'en' ? 'Women Growing Mozambique' : 'Mulheres que fazem crescer Moçambique';
@@ -57,7 +59,7 @@ export function Hero({
           <div className="absolute -left-7 top-10 hidden h-24 w-24 rounded-full border border-agriGreen/40 lg:block" />
           <div className="absolute -right-4 bottom-12 hidden h-20 w-20 rounded-full border border-white/15 lg:block" />
           <div className="relative mx-auto aspect-[0.86] w-[74%] rotate-[-4deg] overflow-hidden rounded-[28px] bg-agriSand shadow-floating transition duration-500 hover:rotate-[-1deg]">
-            <img src="https://images.unsplash.com/photo-1499529112087-3cb3b73cec95?auto=format&fit=crop&w=1000&q=90" alt="Campo agrícola ao amanhecer em Moçambique" className="h-full w-full object-cover" />
+            <img src="https://pub-62ede2df544b4c7d8720ddf4acc3e1e0.r2.dev/WhatsApp%20Image%202026-10-05%20at%2020.09.39%20(2).jpeg" alt="Campo agrícola ao amanhecer em Moçambique" className="h-full w-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-b from-agriDark/10 via-transparent to-agriDark/80" />
             <div className="absolute inset-x-6 top-6 flex items-center justify-between text-white/80">
               <span className="rounded-full border border-white/30 bg-agriDark/30 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.2em] backdrop-blur">AgriMag</span>
@@ -69,10 +71,13 @@ export function Hero({
               <div className="mt-5 h-px w-12 bg-agriGreen" />
             </div>
           </div>
-          <div className="animate-float-slow absolute -right-1 top-8 rounded-2xl bg-white px-4 py-3 text-agriDark shadow-xl lg:-right-3">
+          <button
+            onClick={onInformation}
+            className="animate-float-slow absolute -right-1 top-8 rounded-2xl bg-white px-4 py-3 text-agriDark shadow-xl lg:-right-3 border border"
+          >
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-agriGreen">{t.hero.since}</p>
             <p className="mt-0.5 font-display text-lg font-extrabold tracking-[-0.05em]">{t.hero.moving}</p>
-          </div>
+          </button>
           <div className="animate-float-slower absolute -bottom-2 left-0 rounded-2xl border border-white/10 bg-[#0d5c5b]/90 px-4 py-3 text-white shadow-xl backdrop-blur lg:-left-5">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/55">{t.hero.community}</p>
             <p className="mt-0.5 font-display text-lg font-extrabold tracking-[-0.05em]">{t.hero.field}</p>

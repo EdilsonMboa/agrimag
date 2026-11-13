@@ -12,6 +12,7 @@ import { useLanguage } from './i18n/LanguageContext';
 import { AdminPanel } from './components/AdminPanel';
 import { PortfolioSection } from './components/PortfolioSection';
 import { AdminRoute } from './components/AdminRoute';
+import { NewsModal } from './components/InformationModal';
 
 
 const trackedSections = ['inicio', 'sobre', 'revistas', 'servicos', 'portfolio', 'subscricao', 'contactos'];
@@ -42,6 +43,7 @@ export default function App() {
   const [quoteService, setQuoteService] = useState<string | undefined>();
   const [activeSection, setActiveSection] = useState('inicio');
   const [magazinesLibraryOpen, setMagazinesLibraryOpen] = useState(false);
+  const [informationOpen, setInformationOpen] = useState(false);
 
 
   useEffect(() => {
@@ -89,10 +91,11 @@ export default function App() {
         <Hero
           onRequestQuote={() => openQuote()}
           onExploreMagazines={() => setMagazinesLibraryOpen(true)}
+          onInformation={() => setInformationOpen(true)}
         />
         <AboutSection />
-        <MagazinesSection />
         <ServicesSection onRequestQuote={openQuote} />
+        <MagazinesSection />
         <PortfolioSection onRequestQuote={() => openQuote()} />
         <SubscriptionSection />
       </main>
@@ -101,6 +104,10 @@ export default function App() {
       <MagazinesLibraryModal
         open={magazinesLibraryOpen}
         onClose={() => setMagazinesLibraryOpen(false)}
+      />
+      <NewsModal
+        open={informationOpen}
+        onClose={() => setInformationOpen(false)}
       />
     </div>
   );

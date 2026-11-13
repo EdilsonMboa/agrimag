@@ -21,3 +21,12 @@ export type Service = {
   icon: 'project' | 'advisory' | 'events';
   accent: string;
 };
+
+export type News = {
+  id: number;
+  title: string;
+  body: string;
+  date: Date;
+  coverImage: string;
+  accent: string;
+}

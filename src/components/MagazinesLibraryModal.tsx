@@ -11,7 +11,7 @@ type MagazinesLibraryModalProps = {
   onClose: () => void;
 };
 
-const ITEMS_PER_PAGE = 4; // Reduzido ligeiramente para 4 para não ficar demasiado longo no telemóvel
+const ITEMS_PER_PAGE = 4;
 
 export function MagazinesLibraryModal({
   open,
