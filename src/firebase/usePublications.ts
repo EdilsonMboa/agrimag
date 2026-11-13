@@ -29,7 +29,7 @@ export function usePublishedMagazines(fallback: Magazine[]) {
     setLoading(true);
     listPublishedPublications()
       .then((records) => { if (active) setItems(records.map((record, index) => toMagazine(Number(record.editionNumber.match(/\d+/)?.[0]) || index + 1, record))); })
-      .catch((reason: unknown) => { if (active) setError(reason instanceof Error ? reason.message : 'Não foi possível carregar as revistas.'); })
+      .catch((reason: unknown) => { console.error('[AgriMag][Firestore][public:list:error]', reason); if (active) setError(reason instanceof Error ? reason.message : 'Não foi possível carregar as revistas.'); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [fallback]);

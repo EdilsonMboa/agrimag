@@ -4,6 +4,7 @@ import { magazines } from '../data/magazines';
 import { useLanguage } from '../i18n/LanguageContext';
 import { createPublication, deletePublication, listPublications, updatePublication, uploadPublicationAsset, type PublicationRecord } from '../firebase/publications';
 import { isFirebaseConfigured } from '../firebase/config';
+import { checkR2Health } from '../r2/client';
 
 type PublicationStatus = 'published' | 'draft';
 type DashboardTab = 'analytics' | 'publications';
@@ -196,6 +197,13 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
     }
   };
 
+  const testR2 = async () => {
+    const result = await checkR2Health();
+    if (result.ok && 'service' in result) setFormMessage(`R2 OK — ${result.service}`);
+    else if ('message' in result) setFormMessage(`R2: ${result.message}`);
+    else setFormMessage(`R2: HTTP ${result.status}`);
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if ((!editingId && !file) || !edition.trim() || !title.trim() || !category || !description.trim()) { setFormMessage(text.required); return; }
@@ -223,7 +231,7 @@ export function AdminPanel({ onBack }: AdminPanelProps) {
   };
 
   return <div className="min-h-screen bg-[#061f25] text-white">
-    <header className="border-b border-white/8 bg-[#04191e]/95 backdrop-blur-xl"><div className="container-shell flex min-h-[76px] items-center justify-between gap-5"><div className="flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-xl bg-agriGreen shadow-lg shadow-agriGreen/20"><LayoutDashboard className="h-5 w-5" /></div><div><p className="font-display text-lg font-extrabold tracking-[-0.04em]">Agri<span className="text-agriGreen">Mag</span> Admin</p><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">{text.demo}</p></div></div><div className="flex items-center gap-2"><span className="hidden rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-amber-200 sm:inline-flex">{text.storageBadge}</span><button onClick={onBack} className="focus-ring inline-flex items-center gap-2 rounded-full border border-white/12 px-3 py-2 text-xs font-bold text-white/75 transition hover:border-agriGreen hover:bg-agriGreen hover:text-white"><ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">{text.back}</span></button></div></div></header>
+    <header className="border-b border-white/8 bg-[#04191e]/95 backdrop-blur-xl"><div className="container-shell flex min-h-[76px] items-center justify-between gap-5"><div className="flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-xl bg-agriGreen shadow-lg shadow-agriGreen/20"><LayoutDashboard className="h-5 w-5" /></div><div><p className="font-display text-lg font-extrabold tracking-[-0.04em]">Agri<span className="text-agriGreen">Mag</span> Admin</p><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">{text.demo}</p></div></div><div className="flex items-center gap-2"><button type="button" onClick={() => void testR2()} className="hidden rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-amber-200 transition hover:bg-amber-300/20 sm:inline-flex">{text.storageBadge} · {isEnglish ? 'Test' : 'Testar'}</button><button onClick={onBack} className="focus-ring inline-flex items-center gap-2 rounded-full border border-white/12 px-3 py-2 text-xs font-bold text-white/75 transition hover:border-agriGreen hover:bg-agriGreen hover:text-white"><ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">{text.back}</span></button></div></div></header>
     <div className="container-shell flex flex-col gap-8 py-8 lg:flex-row lg:py-10">
       <aside className="lg:w-56 lg:shrink-0"><div className="lg:sticky lg:top-8"><p className="mb-4 px-3 text-[10px] font-bold uppercase tracking-[0.22em] text-white/35">{text.workspace}</p><nav className="flex gap-2 overflow-x-auto lg:block lg:space-y-2">{([{ id: 'analytics', label: text.analytics, icon: BarChart3 }, { id: 'publications', label: text.publications, icon: Library }] as const).map(({ id, label, icon: Icon }) => <button key={id} onClick={() => setActiveTab(id)} className={`focus-ring flex shrink-0 items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold transition lg:w-full ${activeTab === id ? 'bg-agriGreen text-white shadow-lg shadow-agriGreen/15' : 'text-white/52 hover:bg-white/6 hover:text-white'}`}><Icon className="h-4 w-4" /> {label}</button>)}</nav><div className="mt-8 hidden rounded-2xl border border-white/8 bg-[#0b2e34] p-4 lg:block"><Cloud className="h-5 w-5 text-agriGreen" /><p className="mt-3 text-xs font-bold text-white">{text.storage}</p><p className="mt-1 text-[11px] leading-5 text-white/40">{text.storageHint}</p></div></div></aside>
       <main className="min-w-0 flex-1">

@@ -30,16 +30,22 @@ function requireFirebase() {
 
 export async function listPublishedPublications(): Promise<PublicationRecord[]> {
   const { firestore: db } = requireFirebase();
+  console.info('[AgriMag][Firestore][public:list:start]', { collection: 'publications', filter: 'status == published' });
   const snapshot = await getDocs(query(collection(db, 'publications'), where('status', '==', 'published')));
-  return snapshot.docs.map((item) => ({ id: item.id, ...item.data() } as PublicationRecord));
+  const items = snapshot.docs.map((item) => ({ id: item.id, ...item.data() } as PublicationRecord));
+  console.info('[AgriMag][Firestore][public:list:success]', { count: items.length, ids: items.map((item) => item.id) });
+  return items;
 }
 
 export async function listPublications(): Promise<PublicationRecord[]> {
   const { firestore: db } = requireFirebase();
+  console.info('[AgriMag][Firestore][admin:list:start]', { collection: 'publications' });
   const snapshot = await getDocs(collection(db, 'publications'));
-  return snapshot.docs
+  const items = snapshot.docs
     .map((item) => ({ id: item.id, ...item.data() } as PublicationRecord))
     .filter((item) => item.status !== 'archived');
+  console.info('[AgriMag][Firestore][admin:list:success]', { count: items.length, items: items.map((item) => ({ id: item.id, status: item.status, title: item.title, pdfUrl: item.pdfUrl, thumbnailUrl: item.thumbnailUrl })) });
+  return items;
 }
 
 export async function uploadPublicationAsset(file: File, publicationId: string, kind: 'pdf' | 'thumbnail') {
@@ -56,16 +62,21 @@ export async function uploadPublicationAsset(file: File, publicationId: string, 
 
 export async function createPublication(input: Omit<PublicationRecord, 'id' | 'pdfUrl' | 'thumbnailUrl' | 'pdfStoragePath' | 'thumbnailStoragePath'>, pdf: File, thumbnail?: File) {
   const { firestore: db } = requireFirebase();
+  console.info('[AgriMag][Firestore][create:start]', { title: input.title, status: input.status, pdfName: pdf.name, thumbnailName: thumbnail?.name });
   const publication = await addDoc(collection(db, 'publications'), { ...input, isFree: true, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+  console.info('[AgriMag][Firestore][create:doc]', { id: publication.id });
   const pdfAsset = await uploadPublicationAsset(pdf, publication.id, 'pdf');
   const thumbnailAsset = thumbnail ? await uploadPublicationAsset(thumbnail, publication.id, 'thumbnail') : { path: '', url: '' };
   await updateDoc(doc(db, 'publications', publication.id), { pdfUrl: pdfAsset.url, pdfStoragePath: pdfAsset.path, thumbnailUrl: thumbnailAsset.url, thumbnailStoragePath: thumbnailAsset.path, updatedAt: serverTimestamp() });
+  console.info('[AgriMag][Firestore][create:success]', { id: publication.id, status: input.status, pdfUrl: pdfAsset.url, thumbnailUrl: thumbnailAsset.url });
   return publication.id;
 }
 
 export async function updatePublication(id: string, changes: Partial<PublicationRecord>) {
   const { firestore: db } = requireFirebase();
+  console.info('[AgriMag][Firestore][update:start]', { id, changes });
   await updateDoc(doc(db, 'publications', id), { ...changes, isFree: true, updatedAt: serverTimestamp() });
+  console.info('[AgriMag][Firestore][update:success]', { id, status: changes.status });
 }
 
 export async function deletePublication(id: string) {
