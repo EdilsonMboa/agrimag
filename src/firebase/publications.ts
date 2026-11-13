@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, query, serverTimestamp, updateDoc, where } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { firestore, firebaseStorage } from './config';
 import { deleteR2Asset, uploadR2Asset } from '../r2/client';
@@ -29,8 +29,9 @@ function requireFirebase() {
 }
 
 export async function listPublishedPublications(): Promise<PublicationRecord[]> {
-  const items = await listPublications();
-  return items.filter((item) => item.status === 'published');
+  const { firestore: db } = requireFirebase();
+  const snapshot = await getDocs(query(collection(db, 'publications'), where('status', '==', 'published')));
+  return snapshot.docs.map((item) => ({ id: item.id, ...item.data() } as PublicationRecord));
 }
 
 export async function listPublications(): Promise<PublicationRecord[]> {
