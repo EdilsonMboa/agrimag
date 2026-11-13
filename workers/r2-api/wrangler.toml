@@ -8,4 +8,4 @@ bucket_name = "agrimag-media"
 
 [vars]
 FIREBASE_PROJECT_ID = "fena-f00d0"
-ALLOWED_ORIGIN = "https://fena-f00d0.web.app"
+ALLOWED_ORIGIN = "https://fena-f00d0.web.app,http://localhost:3000,http://127.0.0.1:3000"

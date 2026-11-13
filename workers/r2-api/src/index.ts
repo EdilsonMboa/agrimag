@@ -10,12 +10,25 @@ const MAX_PDF_BYTES = 20 * 1024 * 1024;
 const MAX_THUMBNAIL_BYTES = 5 * 1024 * 1024;
 const jwks = createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'));
 
-function cors(env: Env, headers: HeadersInit = {}) {
-  return new Headers({ 'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN, 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Size', 'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS', Vary: 'Origin', ...headers });
+function allowedOrigin(request: Request, env: Env) {
+  const origin = request.headers.get('Origin') || '';
+  const allowed = env.ALLOWED_ORIGIN.split(',').map((item) => item.trim()).filter(Boolean);
+  return allowed.includes(origin) ? origin : allowed[0] || '';
 }
 
-function json(env: Env, body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: cors(env, { 'Content-Type': 'application/json; charset=utf-8' }) });
+function cors(request: Request, env: Env, headers: HeadersInit = {}) {
+  const responseOrigin = allowedOrigin(request, env);
+  return new Headers({
+    ...(responseOrigin ? { 'Access-Control-Allow-Origin': responseOrigin } : {}),
+    'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Size',
+    'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
+    Vary: 'Origin',
+    ...headers,
+  });
+}
+
+function json(request: Request, env: Env, body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: cors(request, env, { 'Content-Type': 'application/json; charset=utf-8' }) });
 }
 
 function safeKey(raw: string) {
@@ -42,41 +55,41 @@ function assetMetadata(key: string, contentType: string) {
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(env) });
+    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(request, env) });
     const url = new URL(request.url);
 
-    if (url.pathname === '/health') return json(env, { ok: true, service: 'agrimag-r2-api' });
+    if (url.pathname === '/health') return json(request, env, { ok: true, service: 'agrimag-r2-api' });
 
     if (url.pathname.startsWith('/assets/')) {
       const key = safeKey(url.pathname.slice('/assets/'.length));
-      if (!key) return json(env, { error: 'Invalid asset key.' }, 400);
+      if (!key) return json(request, env, { error: 'Invalid asset key.' }, 400);
       const object = await env.R2_BUCKET.get(key, { onlyIf: request.headers });
-      if (!object) return json(env, { error: 'Asset not found.' }, 404);
-      if (!('body' in object)) return new Response(null, { status: 304, headers: cors(env, { ETag: object.httpEtag }) });
-      const headers = cors(env);
+      if (!object) return json(request, env, { error: 'Asset not found.' }, 404);
+      if (!('body' in object)) return new Response(null, { status: 304, headers: cors(request, env, { ETag: object.httpEtag }) });
+      const headers = cors(request, env);
       object.writeHttpMetadata(headers);
       headers.set('ETag', object.httpEtag);
       return new Response(object.body, { headers });
     }
 
-    if (!url.pathname.startsWith('/api/admin/assets/')) return json(env, { error: 'Not found.' }, 404);
-    if (!(await requireAdmin(request, env))) return json(env, { error: 'Admin access required.' }, 403);
+    if (!url.pathname.startsWith('/api/admin/assets/')) return json(request, env, { error: 'Not found.' }, 404);
+    if (!(await requireAdmin(request, env))) return json(request, env, { error: 'Admin access required.' }, 403);
     const key = safeKey(url.pathname.slice('/api/admin/assets/'.length));
-    if (!key) return json(env, { error: 'Invalid asset key.' }, 400);
+    if (!key) return json(request, env, { error: 'Invalid asset key.' }, 400);
 
     if (request.method === 'DELETE') {
       await env.R2_BUCKET.delete(key);
-      return json(env, { ok: true, key });
+      return json(request, env, { ok: true, key });
     }
 
-    if (request.method !== 'PUT') return json(env, { error: 'Method not allowed.' }, 405);
+    if (request.method !== 'PUT') return json(request, env, { error: 'Method not allowed.' }, 405);
     const contentType = request.headers.get('Content-Type') || 'application/octet-stream';
     const declaredSize = Number(request.headers.get('X-File-Size') || 0);
     const isPdf = key.includes('/pdf/');
     const maxBytes = isPdf ? MAX_PDF_BYTES : MAX_THUMBNAIL_BYTES;
-    if ((isPdf && contentType !== 'application/pdf') || (!isPdf && !/^image\/(jpeg|png|webp)$/.test(contentType))) return json(env, { error: 'Invalid content type.' }, 415);
-    if (declaredSize <= 0 || declaredSize > maxBytes) return json(env, { error: `File exceeds the ${maxBytes / 1024 / 1024} MB limit.` }, 413);
+    if ((isPdf && contentType !== 'application/pdf') || (!isPdf && !/^image\/(jpeg|png|webp)$/.test(contentType))) return json(request, env, { error: 'Invalid content type.' }, 415);
+    if (declaredSize <= 0 || declaredSize > maxBytes) return json(request, env, { error: `File exceeds the ${maxBytes / 1024 / 1024} MB limit.` }, 413);
     await env.R2_BUCKET.put(key, request.body, { ...assetMetadata(key, contentType), customMetadata: { uploadedBy: 'agrimag-admin' } });
-    return json(env, { ok: true, key, url: `${url.origin}/assets/${key}` });
+    return json(request, env, { ok: true, key, url: `${url.origin}/assets/${key}` });
   },
 };
